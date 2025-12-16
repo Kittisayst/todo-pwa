@@ -331,6 +331,216 @@
         </div>
     </div>
 
+    <!-- Date Picker Modal -->
+    <div class="modal picker-modal" id="date-picker-modal">
+        <div class="modal-content picker-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Select Due Date</h2>
+                <button class="text-btn" id="date-cancel-btn">Cancel</button>
+            </div>
+            <div class="modal-body">
+                <div class="date-options">
+                    <button class="date-option-btn" data-date="today">
+                        <span class="date-icon">📅</span>
+                        <div class="date-info">
+                            <strong>Today</strong>
+                            <small id="today-date"></small>
+                        </div>
+                    </button>
+                    <button class="date-option-btn" data-date="tomorrow">
+                        <span class="date-icon">🌅</span>
+                        <div class="date-info">
+                            <strong>Tomorrow</strong>
+                            <small id="tomorrow-date"></small>
+                        </div>
+                    </button>
+                    <button class="date-option-btn" data-date="weekend">
+                        <span class="date-icon">🎉</span>
+                        <div class="date-info">
+                            <strong>This Weekend</strong>
+                            <small id="weekend-date"></small>
+                        </div>
+                    </button>
+                    <button class="date-option-btn" data-date="next-week">
+                        <span class="date-icon">📆</span>
+                        <div class="date-info">
+                            <strong>Next Week</strong>
+                            <small id="next-week-date"></small>
+                        </div>
+                    </button>
+                </div>
+                <div class="custom-date-section">
+                    <h3 class="section-subtitle">CUSTOM DATE</h3>
+                    <input type="date" class="date-input" id="custom-date-input">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- List Picker Modal -->
+    <div class="modal picker-modal" id="list-picker-modal">
+        <div class="modal-content picker-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Select List</h2>
+                <button class="text-btn" id="list-cancel-btn">Cancel</button>
+            </div>
+            <div class="modal-body">
+                <div class="list-options">
+                    <button class="list-option-btn" data-list="Inbox">
+                        <span class="list-icon">📥</span>
+                        <span>Inbox</span>
+                    </button>
+                    <button class="list-option-btn" data-list="Work">
+                        <span class="list-icon">💼</span>
+                        <span>Work</span>
+                    </button>
+                    <button class="list-option-btn" data-list="Personal">
+                        <span class="list-icon">👤</span>
+                        <span>Personal</span>
+                    </button>
+                    <button class="list-option-btn" data-list="Mobile App">
+                        <span class="list-icon">📱</span>
+                        <span>Mobile App</span>
+                    </button>
+                    <button class="list-option-btn" data-list="Shopping">
+                        <span class="list-icon">🛒</span>
+                        <span>Shopping</span>
+                    </button>
+                    <button class="list-option-btn" data-list="Health">
+                        <span class="list-icon">🏥</span>
+                        <span>Health</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div class="modal" id="search-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="icon-btn" id="search-back-btn">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <input type="text" class="search-input" id="search-input" placeholder="ຄົ້ນຫາວຽກ..." autofocus>
+            </div>
+            <div class="modal-body">
+                <div class="search-results" id="search-results"></div>
+                <div class="empty-search" id="empty-search">
+                    <div class="empty-icon">🔍</div>
+                    <p class="empty-text">ບໍ່ພົບຜົນການຄົ້ນຫາ</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar Page -->
+    <div class="page-content" id="calendar-page" style="display: none;">
+        <div class="calendar-header">
+            <h2 class="calendar-title" id="calendar-month-year"></h2>
+            <div class="calendar-nav">
+                <button class="icon-btn" id="prev-month-btn">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                </button>
+                <button class="icon-btn" id="next-month-btn">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="calendar-weekdays">
+            <div>Sun</div>
+            <div>Mon</div>
+            <div>Tue</div>
+            <div>Wed</div>
+            <div>Thu</div>
+            <div>Fri</div>
+            <div>Sat</div>
+        </div>
+        <div class="calendar-grid" id="calendar-grid"></div>
+        <div class="calendar-tasks">
+            <h3 class="section-subtitle">TASKS FOR SELECTED DATE</h3>
+            <div class="calendar-tasks-list" id="calendar-tasks-list"></div>
+        </div>
+    </div>
+
+    <!-- Settings Page -->
+    <div class="page-content" id="settings-page" style="display: none;">
+        <div class="settings-section">
+            <h3 class="section-subtitle">APPEARANCE</h3>
+            <div class="settings-item">
+                <div class="settings-info">
+                    <strong>Dark Mode</strong>
+                    <small>ໃຊ້ທີມມືດ (ເປີດຢູ່ສະເໝີ)</small>
+                </div>
+                <div class="toggle-switch active">
+                    <div class="toggle-thumb"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3 class="section-subtitle">NOTIFICATIONS</h3>
+            <div class="settings-item">
+                <div class="settings-info">
+                    <strong>Task Reminders</strong>
+                    <small>ແຈ້ງເຕືອນກ່ອນວຽກຖືກກຳນົດ</small>
+                </div>
+                <div class="toggle-switch" id="reminder-toggle">
+                    <div class="toggle-thumb"></div>
+                </div>
+            </div>
+            <div class="settings-item">
+                <div class="settings-info">
+                    <strong>Daily Summary</strong>
+                    <small>ສະຫຼຸບວຽກປະຈຳວັນ</small>
+                </div>
+                <div class="toggle-switch" id="summary-toggle">
+                    <div class="toggle-thumb"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3 class="section-subtitle">DATA</h3>
+            <button class="settings-btn" id="export-btn">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
+                </svg>
+                <span>Export Data</span>
+            </button>
+            <button class="settings-btn" id="import-btn">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+                </svg>
+                <span>Import Data</span>
+            </button>
+            <button class="settings-btn danger" id="clear-data-btn">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                </svg>
+                <span>Clear All Data</span>
+            </button>
+        </div>
+
+        <div class="settings-section">
+            <h3 class="section-subtitle">ABOUT</h3>
+            <div class="about-info">
+                <p><strong>My Tasks</strong></p>
+                <p>Version 1.0.0</p>
+                <p>Modern Task Management App</p>
+                <p style="margin-top: 1rem; color: var(--color-text-muted);">
+                    ສ້າງດ້ວຍ ❤️ ໂດຍ Claude
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- Install Prompt -->
     <div class="install-prompt" id="install-prompt">
         <div class="install-content">

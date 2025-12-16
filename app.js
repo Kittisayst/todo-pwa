@@ -4,6 +4,9 @@ class TaskApp {
         this.tasks = this.loadTasks();
         this.currentFilter = 'all';
         this.currentTaskId = null;
+        this.currentPage = 'tasks';
+        this.currentDate = new Date();
+        this.selectedDate = new Date();
         this.init();
     }
 
@@ -83,6 +86,44 @@ class TaskApp {
         this.detailSubtasks = document.getElementById('detail-subtasks');
         this.deleteTaskBtn = document.getElementById('delete-task-btn');
         this.markCompleteBtn = document.getElementById('mark-complete-btn');
+        this.addSubtaskDetailBtn = document.getElementById('add-subtask-detail-btn');
+        
+        // Date Picker Modal
+        this.datePickerModal = document.getElementById('date-picker-modal');
+        this.dateCancelBtn = document.getElementById('date-cancel-btn');
+        this.dateOptionBtns = document.querySelectorAll('.date-option-btn');
+        this.customDateInput = document.getElementById('custom-date-input');
+        
+        // List Picker Modal
+        this.listPickerModal = document.getElementById('list-picker-modal');
+        this.listCancelBtn = document.getElementById('list-cancel-btn');
+        this.listOptionBtns = document.querySelectorAll('.list-option-btn');
+        
+        // Search Modal
+        this.searchModal = document.getElementById('search-modal');
+        this.searchBackBtn = document.getElementById('search-back-btn');
+        this.searchInput = document.getElementById('search-input');
+        this.searchResults = document.getElementById('search-results');
+        this.emptySearch = document.getElementById('empty-search');
+        
+        // Pages
+        this.tasksMain = document.querySelector('.tasks-main');
+        this.calendarPage = document.getElementById('calendar-page');
+        this.settingsPage = document.getElementById('settings-page');
+        
+        // Calendar
+        this.calendarMonthYear = document.getElementById('calendar-month-year');
+        this.prevMonthBtn = document.getElementById('prev-month-btn');
+        this.nextMonthBtn = document.getElementById('next-month-btn');
+        this.calendarGrid = document.getElementById('calendar-grid');
+        this.calendarTasksList = document.getElementById('calendar-tasks-list');
+        
+        // Settings
+        this.reminderToggle = document.getElementById('reminder-toggle');
+        this.summaryToggle = document.getElementById('summary-toggle');
+        this.exportBtn = document.getElementById('export-btn');
+        this.importBtn = document.getElementById('import-btn');
+        this.clearDataBtn = document.getElementById('clear-data-btn');
         
         // Install prompt
         this.installPrompt = document.getElementById('install-prompt');
@@ -91,6 +132,11 @@ class TaskApp {
     }
 
     setupEventListeners() {
+        // Search button
+        this.searchBtn.addEventListener('click', () => {
+            this.openSearchModal();
+        });
+        
         // Filter tabs
         this.filterTabs.forEach(tab => {
             tab.addEventListener('click', () => {
@@ -101,8 +147,7 @@ class TaskApp {
         // Bottom nav
         this.navBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                this.navBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+                this.switchPage(btn.dataset.page);
             });
         });
         
@@ -121,9 +166,27 @@ class TaskApp {
         });
         
         // Quick actions
+        this.flagBtn.addEventListener('click', () => {
+            this.toggleFlag();
+        });
+        
         this.tagsBtn.addEventListener('click', () => {
             this.tagsInputSection.style.display = 
                 this.tagsInputSection.style.display === 'none' ? 'block' : 'none';
+        });
+        
+        this.remindBtn.addEventListener('click', () => {
+            this.setupReminder();
+        });
+        
+        // Due Date Section
+        this.dueDateSection.addEventListener('click', () => {
+            this.openDatePicker();
+        });
+        
+        // List Section
+        this.listSection.addEventListener('click', () => {
+            this.openListPicker();
         });
         
         // Priority buttons
@@ -164,15 +227,518 @@ class TaskApp {
             this.toggleCurrentTaskComplete();
         });
         
+        this.addSubtaskDetailBtn.addEventListener('click', () => {
+            this.addSubtaskFromDetail();
+        });
+        
+        // Date Picker Modal
+        this.dateCancelBtn.addEventListener('click', () => {
+            this.closeDatePicker();
+        });
+        
+        this.dateOptionBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.selectDateOption(btn.dataset.date);
+            });
+        });
+        
+        this.customDateInput.addEventListener('change', () => {
+            this.selectCustomDate();
+        });
+        
+        // List Picker Modal
+        this.listCancelBtn.addEventListener('click', () => {
+            this.closeListPicker();
+        });
+        
+        this.listOptionBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.selectList(btn.dataset.list);
+            });
+        });
+        
+        // Search Modal
+        this.searchBackBtn.addEventListener('click', () => {
+            this.closeSearchModal();
+        });
+        
+        this.searchInput.addEventListener('input', () => {
+            this.performSearch();
+        });
+        
+        // Calendar Navigation
+        this.prevMonthBtn.addEventListener('click', () => {
+            this.changeMonth(-1);
+        });
+        
+        this.nextMonthBtn.addEventListener('click', () => {
+            this.changeMonth(1);
+        });
+        
+        // Settings Toggles
+        this.reminderToggle.addEventListener('click', () => {
+            this.toggleSetting(this.reminderToggle);
+        });
+        
+        this.summaryToggle.addEventListener('click', () => {
+            this.toggleSetting(this.summaryToggle);
+        });
+        
+        // Settings Buttons
+        this.exportBtn.addEventListener('click', () => {
+            this.exportData();
+        });
+        
+        this.importBtn.addEventListener('click', () => {
+            this.importData();
+        });
+        
+        this.clearDataBtn.addEventListener('click', () => {
+            this.clearAllData();
+        });
+        
         // Modal backdrop click
-        [this.taskModal, this.detailModal].forEach(modal => {
+        [this.taskModal, this.detailModal, this.datePickerModal, this.listPickerModal, this.searchModal].forEach(modal => {
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
-                    this.closeTaskModal();
-                    this.closeDetailModal();
+                    this.closeAllModals();
                 }
             });
         });
+    }
+
+    // ========== PAGE NAVIGATION ==========
+    switchPage(page) {
+        this.currentPage = page;
+        
+        // Update nav buttons
+        this.navBtns.forEach(btn => {
+            if (btn.dataset.page === page) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        
+        // Hide all pages
+        this.tasksMain.style.display = 'none';
+        this.calendarPage.style.display = 'none';
+        this.settingsPage.style.display = 'none';
+        
+        // Show selected page
+        if (page === 'tasks') {
+            this.tasksMain.style.display = 'block';
+            this.addTaskBtn.style.display = 'flex';
+        } else if (page === 'calendar') {
+            this.calendarPage.style.display = 'block';
+            this.addTaskBtn.style.display = 'none';
+            this.renderCalendar();
+        } else if (page === 'settings') {
+            this.settingsPage.style.display = 'block';
+            this.addTaskBtn.style.display = 'none';
+        }
+    }
+
+    // ========== SEARCH FUNCTIONALITY ==========
+    openSearchModal() {
+        this.searchModal.classList.add('show');
+        this.searchInput.focus();
+        this.searchInput.value = '';
+        this.searchResults.innerHTML = '';
+        this.emptySearch.classList.remove('show');
+    }
+
+    closeSearchModal() {
+        this.searchModal.classList.remove('show');
+    }
+
+    performSearch() {
+        const query = this.searchInput.value.trim().toLowerCase();
+        
+        if (!query) {
+            this.searchResults.innerHTML = '';
+            this.emptySearch.classList.remove('show');
+            return;
+        }
+        
+        const results = this.tasks.filter(task => 
+            task.title.toLowerCase().includes(query) ||
+            (task.details && task.details.toLowerCase().includes(query)) ||
+            (task.tags && task.tags.some(tag => tag.toLowerCase().includes(query)))
+        );
+        
+        if (results.length > 0) {
+            this.searchResults.innerHTML = results.map(task => this.createTaskElement(task)).join('');
+            this.emptySearch.classList.remove('show');
+            
+            // Add click listeners
+            this.searchResults.querySelectorAll('.task-item').forEach(item => {
+                const taskId = parseInt(item.dataset.id);
+                item.addEventListener('click', () => {
+                    this.closeSearchModal();
+                    this.openDetailModal(taskId);
+                });
+            });
+        } else {
+            this.searchResults.innerHTML = '';
+            this.emptySearch.classList.add('show');
+        }
+    }
+
+    // ========== DATE PICKER ==========
+    openDatePicker() {
+        this.updateDatePickerLabels();
+        this.datePickerModal.classList.add('show');
+    }
+
+    closeDatePicker() {
+        this.datePickerModal.classList.remove('show');
+    }
+
+    updateDatePickerLabels() {
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        const weekend = new Date(today);
+        const daysUntilSaturday = 6 - today.getDay();
+        weekend.setDate(weekend.getDate() + daysUntilSaturday);
+        
+        const nextWeek = new Date(today);
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        
+        document.getElementById('today-date').textContent = this.formatDate(today);
+        document.getElementById('tomorrow-date').textContent = this.formatDate(tomorrow);
+        document.getElementById('weekend-date').textContent = this.formatDate(weekend);
+        document.getElementById('next-week-date').textContent = this.formatDate(nextWeek);
+    }
+
+    selectDateOption(option) {
+        let dateText = 'Today';
+        const today = new Date();
+        
+        switch(option) {
+            case 'today':
+                dateText = 'Today';
+                break;
+            case 'tomorrow':
+                dateText = 'Tomorrow';
+                break;
+            case 'weekend':
+                const weekend = new Date(today);
+                const daysUntilSaturday = 6 - today.getDay();
+                weekend.setDate(weekend.getDate() + daysUntilSaturday);
+                dateText = this.formatDate(weekend);
+                break;
+            case 'next-week':
+                const nextWeek = new Date(today);
+                nextWeek.setDate(nextWeek.getDate() + 7);
+                dateText = this.formatDate(nextWeek);
+                break;
+        }
+        
+        this.dueDateValue.textContent = dateText;
+        this.closeDatePicker();
+    }
+
+    selectCustomDate() {
+        const date = new Date(this.customDateInput.value);
+        this.dueDateValue.textContent = this.formatDate(date);
+        this.closeDatePicker();
+    }
+
+    formatDate(date) {
+        const options = { month: 'short', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    }
+
+    // ========== LIST PICKER ==========
+    openListPicker() {
+        this.listPickerModal.classList.add('show');
+    }
+
+    closeListPicker() {
+        this.listPickerModal.classList.remove('show');
+    }
+
+    selectList(list) {
+        this.listValue.textContent = list;
+        this.closeListPicker();
+    }
+
+    // ========== FLAG & REMINDER ==========
+    toggleFlag() {
+        this.flagBtn.classList.toggle('active');
+        
+        if (this.flagBtn.classList.contains('active')) {
+            // Auto set to high priority when flagged
+            this.priorityBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.priority === 'high');
+            });
+        }
+    }
+
+    setupReminder() {
+        if ('Notification' in window) {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    this.remindBtn.classList.toggle('active');
+                    
+                    if (this.remindBtn.classList.contains('active')) {
+                        alert('ການແຈ້ງເຕືອນຖືກເປີດໃຊ້ງານແລ້ວ! ທ່ານຈະໄດ້ຮັບການແຈ້ງເຕືອນກ່ອນວຽກຖືກກຳນົດ.');
+                    }
+                } else {
+                    alert('ກະລຸນາອະນຸຍາດການແຈ້ງເຕືອນໃນການຕັ້ງຄ່າ browser');
+                }
+            });
+        } else {
+            alert('Browser ຂອງທ່ານບໍ່ຮອງຮັບການແຈ້ງເຕືອນ');
+        }
+    }
+
+    // ========== CALENDAR ==========
+    renderCalendar() {
+        const year = this.currentDate.getFullYear();
+        const month = this.currentDate.getMonth();
+        
+        // Update header
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+        this.calendarMonthYear.textContent = `${monthNames[month]} ${year}`;
+        
+        // Get first day of month and number of days
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const daysInPrevMonth = new Date(year, month, 0).getDate();
+        
+        // Clear grid
+        this.calendarGrid.innerHTML = '';
+        
+        // Add previous month days
+        for (let i = firstDay - 1; i >= 0; i--) {
+            const day = daysInPrevMonth - i;
+            const dayEl = this.createCalendarDay(day, true, year, month - 1);
+            this.calendarGrid.appendChild(dayEl);
+        }
+        
+        // Add current month days
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayEl = this.createCalendarDay(day, false, year, month);
+            this.calendarGrid.appendChild(dayEl);
+        }
+        
+        // Add next month days
+        const totalCells = this.calendarGrid.children.length;
+        const remainingCells = 42 - totalCells; // 6 rows × 7 days
+        for (let day = 1; day <= remainingCells; day++) {
+            const dayEl = this.createCalendarDay(day, true, year, month + 1);
+            this.calendarGrid.appendChild(dayEl);
+        }
+        
+        // Show tasks for selected date
+        this.showCalendarTasks();
+    }
+
+    createCalendarDay(day, otherMonth, year, month) {
+        const div = document.createElement('div');
+        div.className = 'calendar-day';
+        div.textContent = day;
+        
+        if (otherMonth) {
+            div.classList.add('other-month');
+        }
+        
+        const date = new Date(year, month, day);
+        const today = new Date();
+        
+        // Check if today
+        if (date.toDateString() === today.toDateString()) {
+            div.classList.add('today');
+        }
+        
+        // Check if selected
+        if (date.toDateString() === this.selectedDate.toDateString()) {
+            div.classList.add('selected');
+        }
+        
+        // Check if has tasks
+        const hasTasks = this.tasks.some(task => {
+            const taskDate = this.parseDueDate(task.dueDate);
+            return taskDate && taskDate.toDateString() === date.toDateString();
+        });
+        
+        if (hasTasks) {
+            div.classList.add('has-tasks');
+        }
+        
+        div.addEventListener('click', () => {
+            this.selectCalendarDate(date);
+        });
+        
+        return div;
+    }
+
+    selectCalendarDate(date) {
+        this.selectedDate = date;
+        this.renderCalendar();
+    }
+
+    showCalendarTasks() {
+        const tasksForDate = this.tasks.filter(task => {
+            const taskDate = this.parseDueDate(task.dueDate);
+            return taskDate && taskDate.toDateString() === this.selectedDate.toDateString();
+        });
+        
+        if (tasksForDate.length > 0) {
+            this.calendarTasksList.innerHTML = tasksForDate.map(task => 
+                this.createTaskElement(task)
+            ).join('');
+            
+            // Add click listeners
+            this.calendarTasksList.querySelectorAll('.task-item').forEach(item => {
+                const taskId = parseInt(item.dataset.id);
+                item.addEventListener('click', () => {
+                    this.openDetailModal(taskId);
+                });
+            });
+        } else {
+            this.calendarTasksList.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: var(--color-text-muted);">
+                    ບໍ່ມີວຽກໃນວັນນີ້
+                </div>
+            `;
+        }
+    }
+
+    parseDueDate(dateString) {
+        if (!dateString) return null;
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (dateString === 'Today') {
+            return today;
+        } else if (dateString === 'Tomorrow') {
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            return tomorrow;
+        } else if (dateString === 'Yesterday') {
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            return yesterday;
+        } else {
+            // Try to parse date formats like "Oct 24", "Saturday", etc.
+            try {
+                const date = new Date(dateString + ', ' + today.getFullYear());
+                if (!isNaN(date.getTime())) {
+                    return date;
+                }
+            } catch (e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    changeMonth(direction) {
+        this.currentDate.setMonth(this.currentDate.getMonth() + direction);
+        this.renderCalendar();
+    }
+
+    // ========== SETTINGS ==========
+    toggleSetting(toggle) {
+        toggle.classList.toggle('active');
+        
+        // Save to localStorage
+        const settingId = toggle.id;
+        const isActive = toggle.classList.contains('active');
+        localStorage.setItem(settingId, isActive);
+    }
+
+    exportData() {
+        const dataStr = JSON.stringify(this.tasks, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `my-tasks-backup-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        
+        URL.revokeObjectURL(url);
+        alert('ສຳເລັດ! ຂໍ້ມູນຖືກ export ແລ້ວ');
+    }
+
+    importData() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    if (Array.isArray(data)) {
+                        this.tasks = data;
+                        this.saveTasks();
+                        this.render();
+                        alert('ສຳເລັດ! ຂໍ້ມູນຖືກ import ແລ້ວ');
+                    } else {
+                        alert('ຟອແມັດໄຟລ໌ບໍ່ຖືກຕ້ອງ');
+                    }
+                } catch (error) {
+                    alert('ເກີດຂໍ້ຜິດພາດໃນການອ່ານໄຟລ໌');
+                }
+            };
+            reader.readAsText(file);
+        };
+        
+        input.click();
+    }
+
+    clearAllData() {
+        if (confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບຂໍ້ມູນທັງໝົດ? ການກະທຳນີ້ບໍ່ສາມາດຍົກເລີກໄດ້.')) {
+            if (confirm('ຢືນຢັນອີກຄັ້ງ: ລຶບຂໍ້ມູນທັງໝົດ?')) {
+                this.tasks = [];
+                this.saveTasks();
+                this.render();
+                alert('ຂໍ້ມູນທັງໝົດຖືກລຶບແລ້ວ');
+            }
+        }
+    }
+
+    // ========== DETAIL MODAL SUBTASKS ==========
+    addSubtaskFromDetail() {
+        const task = this.tasks.find(t => t.id === this.currentTaskId);
+        if (!task) return;
+        
+        const subtaskText = prompt('ປ້ອນຊື່ subtask:');
+        if (!subtaskText || !subtaskText.trim()) return;
+        
+        if (!task.subtasks) {
+            task.subtasks = [];
+        }
+        
+        task.subtasks.push({
+            text: subtaskText.trim(),
+            completed: false
+        });
+        
+        this.saveTasks();
+        this.openDetailModal(this.currentTaskId); // Refresh detail view
+    }
+
+    // ========== HELPER METHODS ==========
+    closeAllModals() {
+        this.closeTaskModal();
+        this.closeDetailModal();
+        this.closeDatePicker();
+        this.closeListPicker();
+        this.closeSearchModal();
     }
 
     updateDate() {
@@ -209,6 +775,11 @@ class TaskApp {
             this.priorityBtns.forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.priority === task.priority);
             });
+            
+            // Set flagged
+            if (task.priority === 'high') {
+                this.flagBtn.classList.add('active');
+            }
             
             // Set tags
             if (task.tags && task.tags.length > 0) {
@@ -247,6 +818,8 @@ class TaskApp {
         this.priorityBtns.forEach(btn => {
             btn.classList.toggle('active', btn.dataset.priority === 'none');
         });
+        this.flagBtn.classList.remove('active');
+        this.remindBtn.classList.remove('active');
         this.tagsInputSection.style.display = 'none';
         this.subtasksSection.style.display = 'none';
         this.tagsContainer.innerHTML = '';
@@ -283,6 +856,8 @@ class TaskApp {
             tags,
             subtasks,
             completed: false,
+            flagged: this.flagBtn.classList.contains('active'),
+            reminder: this.remindBtn.classList.contains('active'),
             createdAt: new Date().toISOString()
         };
         
@@ -395,16 +970,29 @@ class TaskApp {
             notesSection.style.display = 'none';
         }
         
-        // Set subtasks
+        // Set subtasks with click handlers
         const subtasksSection = document.getElementById('detail-subtasks-section');
         if (task.subtasks && task.subtasks.length > 0) {
             subtasksSection.style.display = 'block';
-            this.detailSubtasks.innerHTML = task.subtasks.map(subtask => `
-                <div class="subtask-item ${subtask.completed ? 'completed' : ''}">
+            this.detailSubtasks.innerHTML = task.subtasks.map((subtask, index) => `
+                <div class="subtask-item ${subtask.completed ? 'completed' : ''}" data-index="${index}">
                     <div class="subtask-checkbox ${subtask.completed ? 'checked' : ''}"></div>
                     <span class="subtask-text">${this.escapeHtml(subtask.text)}</span>
                 </div>
             `).join('');
+            
+            // Add click handlers for subtask checkboxes
+            this.detailSubtasks.querySelectorAll('.subtask-item').forEach(item => {
+                const index = parseInt(item.dataset.index);
+                const checkbox = item.querySelector('.subtask-checkbox');
+                
+                checkbox.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    task.subtasks[index].completed = !task.subtasks[index].completed;
+                    this.saveTasks();
+                    this.openDetailModal(taskId); // Refresh
+                });
+            });
         } else {
             subtasksSection.style.display = 'none';
         }
@@ -474,7 +1062,6 @@ class TaskApp {
         
         return this.tasks.filter(task => {
             if (this.currentFilter === 'today') {
-                // Show tasks due today
                 return !task.completed;
             } else if (this.currentFilter === 'high') {
                 return task.priority === 'high' && !task.completed;
@@ -606,6 +1193,8 @@ class TaskApp {
                 category: 'Design',
                 tags: ['UX Research', 'Design'],
                 completed: false,
+                flagged: true,
+                reminder: false,
                 createdAt: new Date().toISOString()
             },
             {
@@ -619,6 +1208,8 @@ class TaskApp {
                 category: 'Meetings',
                 tags: [],
                 completed: false,
+                flagged: false,
+                reminder: false,
                 createdAt: new Date().toISOString()
             },
             {
@@ -630,6 +1221,8 @@ class TaskApp {
                 list: 'Personal',
                 tags: [],
                 completed: false,
+                flagged: false,
+                reminder: false,
                 createdAt: new Date().toISOString()
             },
             {
@@ -648,6 +1241,8 @@ class TaskApp {
                     { text: 'Review with Design Lead', completed: false }
                 ],
                 completed: false,
+                flagged: true,
+                reminder: true,
                 createdAt: new Date().toISOString()
             },
             {
@@ -659,6 +1254,8 @@ class TaskApp {
                 list: 'Personal',
                 tags: [],
                 completed: true,
+                flagged: false,
+                reminder: false,
                 createdAt: new Date().toISOString()
             },
             {
@@ -670,6 +1267,8 @@ class TaskApp {
                 list: 'Personal',
                 tags: [],
                 completed: true,
+                flagged: false,
+                reminder: false,
                 createdAt: new Date().toISOString()
             }
         ];
