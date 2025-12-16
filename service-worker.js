@@ -1,12 +1,12 @@
-// Service Worker for TodoList PWA
-const CACHE_NAME = 'todolist-pwa-v1';
+// Service Worker for Modern Task Management App
+const CACHE_NAME = 'task-manager-v1';
 const urlsToCache = [
     './',
     './index.html',
     './style.css',
     './app.js',
     './manifest.json',
-    'https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Archivo:wght@300;400;600;700&display=swap'
+    'https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap'
 ];
 
 // Install Event - Cache files

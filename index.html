@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="ແອັບບັນທຶກລາຍການສິ່ງທີ່ຕ້ອງເຮັດ - PWA TodoList">
-    <meta name="theme-color" content="#1a1a2e">
-    <title>TodoList - ລາຍການທີ່ຕ້ອງເຮັດ</title>
+    <meta name="description" content="Modern Task Management App - ແອັບຈັດການວຽກທີ່ທັນສະໄໝ">
+    <meta name="theme-color" content="#1a1d29">
+    <title>My Tasks - ແອັບຈັດການວຽກ</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>✓</text></svg>">
@@ -14,65 +14,324 @@
 </head>
 
 <body>
-    <div class="container">
-        <header class="header">
-            <div class="header-content">
-                <h1 class="title">
-                    <span class="title-icon">✓</span>
-                    <span class="title-text">ລາຍການທີ່ຕ້ອງເຮັດ</span>
-                </h1>
-                <p class="subtitle">ຈັດການວຽກຂອງທ່ານໃຫ້ເປັນລະບຽບຮຽບຮ້ອຍ</p>
+    <!-- Main Container -->
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-top">
+                <div class="date-title">
+                    <p class="current-date" id="current-date">Monday, October 24</p>
+                    <h1 class="page-title">My Tasks</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn" id="search-btn" title="ຄົ້ນຫາ">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="m21 21-4.35-4.35" />
+                        </svg>
+                    </button>
+                    <div class="user-avatar">
+                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%234F46E5'/><text x='50' y='65' text-anchor='middle' fill='white' font-size='40' font-family='system-ui'>👤</text></svg>"
+                            alt="User">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">
+                    <svg width="20" height="20" fill="currentColor">
+                        <circle cx="10" cy="10" r="3" />
+                        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z" />
+                    </svg>
+                    <span>All Tasks</span>
+                </button>
+                <button class="filter-tab" data-filter="today">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" />
+                        <path d="M16 2v4M8 2v4M3 10h18" />
+                    </svg>
+                    <span>Today</span>
+                </button>
+                <button class="filter-tab" data-filter="high">
+                    <svg width="20" height="20" fill="currentColor">
+                        <path d="M10 2l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z" />
+                    </svg>
+                    <span>High Priority</span>
+                </button>
             </div>
         </header>
 
-        <div class="stats-bar">
-            <div class="stat-item">
-                <span class="stat-number" id="total-tasks">0</span>
-                <span class="stat-label">ທັງໝົດ</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-number stat-active" id="active-tasks">0</span>
-                <span class="stat-label">ຍັງບໍ່ທັນສຳເລັດ</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-number stat-completed" id="completed-tasks">0</span>
-                <span class="stat-label">ສຳເລັດແລ້ວ</span>
-            </div>
-        </div>
+        <!-- Tasks List -->
+        <main class="tasks-main">
+            <!-- In Progress Section -->
+            <section class="task-section">
+                <h2 class="section-title">IN PROGRESS</h2>
+                <div class="tasks-list" id="in-progress-list"></div>
+            </section>
 
-        <div class="add-task-section">
-            <form id="add-task-form" class="add-task-form">
-                <input type="text" id="task-input" class="task-input" placeholder="ເພີ່ມວຽກໃໝ່..." autocomplete="off"
-                    required>
-                <button type="submit" class="add-btn">
-                    <span class="add-btn-text">ເພີ່ມ</span>
-                    <span class="add-btn-icon">+</span>
-                </button>
-            </form>
-        </div>
+            <!-- Completed Section -->
+            <section class="task-section">
+                <h2 class="section-title">COMPLETED</h2>
+                <div class="tasks-list" id="completed-list"></div>
+            </section>
 
-        <div class="filter-tabs">
-            <button class="filter-tab active" data-filter="all">ທັງໝົດ</button>
-            <button class="filter-tab" data-filter="active">ຍັງບໍ່ທັນສຳເລັດ</button>
-            <button class="filter-tab" data-filter="completed">ສຳເລັດແລ້ວ</button>
-        </div>
-
-        <div class="tasks-container">
-            <ul id="tasks-list" class="tasks-list"></ul>
-            <div id="empty-state" class="empty-state">
+            <!-- Empty State -->
+            <div class="empty-state" id="empty-state">
                 <div class="empty-icon">📋</div>
                 <p class="empty-text">ບໍ່ມີວຽກໃນຂະນະນີ້</p>
-                <p class="empty-subtext">ເພີ່ມວຽກໃໝ່ເພື່ອເລີ່ມຕົ້ນ</p>
+                <p class="empty-subtext">ກົດປຸ່ມ + ເພື່ອເພີ່ມວຽກໃໝ່</p>
             </div>
-        </div>
+        </main>
 
-        <div class="actions-footer">
-            <button id="clear-completed-btn" class="action-btn">
-                <span>🗑️</span> ລຶບລາຍການທີ່ສຳເລັດແລ້ວ
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-page="tasks">
+                <svg width="24" height="24" fill="currentColor">
+                    <circle cx="12" cy="12" r="2" />
+                    <path d="M12 4a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z" />
+                </svg>
+                <span>Tasks</span>
             </button>
+            <button class="nav-btn" data-page="calendar">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <path d="M16 2v4M8 2v4M3 10h18" />
+                </svg>
+                <span>Calendar</span>
+            </button>
+            <button class="nav-btn" data-page="settings">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24" />
+                </svg>
+                <span>Settings</span>
+            </button>
+        </nav>
+
+        <!-- FAB Button -->
+        <button class="fab-btn" id="add-task-btn">
+            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="3">
+                <path d="M14 6v16M6 14h16" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Task Modal -->
+    <div class="modal" id="task-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="text-btn" id="cancel-btn">Cancel</button>
+                <h2 class="modal-title" id="modal-title">New Task</h2>
+                <button class="text-btn primary" id="save-btn">Save</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Task Title -->
+                <div class="form-group">
+                    <input type="text" class="task-title-input" id="task-title-input"
+                        placeholder="What needs to be done?" required>
+                    <textarea class="task-details-input" id="task-details-input" placeholder="Add details..."
+                        rows="3"></textarea>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="quick-action-btn" id="flag-btn">
+                        <svg width="20" height="20" fill="currentColor">
+                            <path d="M4 2v20M4 4h12l-2 5 2 5H4" />
+                        </svg>
+                        <span>Flag</span>
+                    </button>
+                    <button class="quick-action-btn" id="tags-btn">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
+                            <circle cx="7" cy="7" r="1" />
+                        </svg>
+                        <span>Tags</span>
+                    </button>
+                    <button class="quick-action-btn" id="remind-btn">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M12 6v6l4 2" />
+                        </svg>
+                        <span>Remind me</span>
+                    </button>
+                </div>
+
+                <!-- Due Date & List -->
+                <div class="form-sections">
+                    <button class="form-section-btn" id="due-date-section">
+                        <div class="section-icon">
+                            <svg width="20" height="20" fill="currentColor">
+                                <rect x="3" y="4" width="18" height="18" rx="2" />
+                                <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" fill="none" />
+                            </svg>
+                        </div>
+                        <span class="section-label">Due Date</span>
+                        <span class="section-value" id="due-date-value">Today</span>
+                        <svg width="20" height="20" fill="currentColor" class="chevron">
+                            <path d="M9 6l6 6-6 6" />
+                        </svg>
+                    </button>
+
+                    <button class="form-section-btn" id="list-section">
+                        <div class="section-icon">
+                            <svg width="20" height="20" fill="currentColor">
+                                <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+                            </svg>
+                        </div>
+                        <span class="section-label">List</span>
+                        <span class="section-value" id="list-value">Inbox</span>
+                        <svg width="20" height="20" fill="currentColor" class="chevron">
+                            <path d="M9 6l6 6-6 6" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Priority -->
+                <div class="priority-section">
+                    <h3 class="section-subtitle">PRIORITY</h3>
+                    <div class="priority-buttons">
+                        <button class="priority-btn active" data-priority="none">None</button>
+                        <button class="priority-btn" data-priority="low">
+                            <svg width="16" height="16" fill="currentColor">
+                                <path d="M8 12l-4-4h8z" />
+                            </svg>
+                        </button>
+                        <button class="priority-btn" data-priority="medium">
+                            <svg width="16" height="16" fill="currentColor">
+                                <path d="M8 8l-4-4h8zM8 12l-4-4h8z" />
+                            </svg>
+                        </button>
+                        <button class="priority-btn" data-priority="high">
+                            <svg width="16" height="16" fill="currentColor">
+                                <path d="M8 4l-4 4h8zM8 8l-4 4h8zM8 12l-4 4h8z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tags Input -->
+                <div class="tags-input-section" id="tags-input-section" style="display: none;">
+                    <h3 class="section-subtitle">TAGS</h3>
+                    <div class="tags-container" id="tags-container"></div>
+                    <input type="text" class="tag-input" id="tag-input" placeholder="Add tag...">
+                </div>
+
+                <!-- Subtasks -->
+                <div class="subtasks-section" id="subtasks-section" style="display: none;">
+                    <h3 class="section-subtitle">SUBTASKS</h3>
+                    <div class="subtasks-list" id="subtasks-list"></div>
+                    <button class="add-subtask-btn" id="add-subtask-btn">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14M5 12h14" />
+                        </svg>
+                        <span>Add subtask</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Task Detail Modal -->
+    <div class="modal detail-modal" id="detail-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="icon-btn" id="back-btn">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <h2 class="modal-title">Task Details</h2>
+                <button class="text-btn primary" id="edit-btn">Edit</button>
+            </div>
+
+            <div class="modal-body detail-body">
+                <div class="detail-task-title">
+                    <div class="task-checkbox" id="detail-checkbox"></div>
+                    <h3 id="detail-title"></h3>
+                </div>
+                <div class="detail-priority" id="detail-priority"></div>
+
+                <div class="detail-info-grid">
+                    <div class="detail-info-card">
+                        <div class="info-icon">
+                            <svg width="20" height="20" fill="currentColor">
+                                <rect x="3" y="4" width="18" height="18" rx="2" />
+                            </svg>
+                        </div>
+                        <div class="info-content">
+                            <p class="info-label">DUE DATE</p>
+                            <p class="info-value" id="detail-due-date"></p>
+                            <p class="info-time" id="detail-due-time"></p>
+                        </div>
+                    </div>
+
+                    <div class="detail-info-card">
+                        <div class="info-icon">
+                            <svg width="20" height="20" fill="currentColor">
+                                <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                            </svg>
+                        </div>
+                        <div class="info-content">
+                            <p class="info-label">PROJECT</p>
+                            <p class="info-value" id="detail-project"></p>
+                            <p class="info-subtext" id="detail-category"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-tags-section" id="detail-tags-section">
+                    <div class="section-header">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
+                        </svg>
+                        <h4>TAGS</h4>
+                    </div>
+                    <div class="detail-tags" id="detail-tags"></div>
+                </div>
+
+                <div class="detail-notes-section" id="detail-notes-section">
+                    <div class="section-header">
+                        <svg width="20" height="20" fill="currentColor">
+                            <path d="M9 2a2 2 0 00-2 2v16l5-3 5 3V4a2 2 0 00-2-2H9z" />
+                        </svg>
+                        <h4>Notes</h4>
+                    </div>
+                    <div class="detail-notes" id="detail-notes"></div>
+                </div>
+
+                <div class="detail-subtasks-section" id="detail-subtasks-section">
+                    <div class="section-header">
+                        <svg width="20" height="20" fill="currentColor">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h4>Subtasks</h4>
+                        <button class="text-btn small" id="add-subtask-detail-btn">Add New</button>
+                    </div>
+                    <div class="detail-subtasks" id="detail-subtasks"></div>
+                </div>
+
+                <button class="delete-task-btn" id="delete-task-btn">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                    </svg>
+                    <span>Delete Task</span>
+                </button>
+
+                <button class="mark-complete-btn" id="mark-complete-btn">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                    <span>Mark as Complete</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Install Prompt -->
     <div class="install-prompt" id="install-prompt">
         <div class="install-content">
             <span class="install-icon">📱</span>
@@ -80,7 +339,7 @@
                 <strong>ຕິດຕັ້ງແອັບ</strong>
                 <span>ເພື່ອໃຊ້ງານໄດ້ງ່າຍຂຶ້ນ</span>
             </div>
-            <button id="install-btn" class="install-btn">ຕິດຕັ້ງ</button>
+            <button id="install-btn" class="install-btn-action">ຕິດຕັ້ງ</button>
             <button id="dismiss-install" class="dismiss-btn">×</button>
         </div>
     </div>
